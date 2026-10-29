@@ -813,10 +813,8 @@ const distPath = path.resolve(process.cwd(), "dist");
 
 app.use(express.static(distPath));
 
-app.get("*", (req, res, next) => {
-  if (req.path.startsWith("/api/")) {
-    return next();
-  }
+// Compatível com Express v5
+app.get(/^(?!\/api\/).*/, (_req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
