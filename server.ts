@@ -7,10 +7,10 @@ dotenv.config({
 });
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 app.use((_req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "http://localhost:5173");
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET");
   next();
 });
@@ -171,7 +171,6 @@ async function fetchITunesMeta(
   };
 }
 
-// Concorrência controlada para não estourar o rate limit do iTunes/Last.fm.
 async function mapWithLimit<T, R>(
   items: T[],
   limit: number,
@@ -196,7 +195,6 @@ async function mapWithLimit<T, R>(
 }
 
 // ============ /api/track-preview ============
-// Dado título + artista, retorna preview iTunes (30s) ou null honesto.
 app.get("/api/track-preview", async (req, res) => {
   const track =
     typeof req.query.track === "string" ? req.query.track.trim() : "";
@@ -303,13 +301,6 @@ app.get("/api/analysis", async (req, res) => {
         : null;
     const iTunes = iTunesMeta.status === "fulfilled" ? iTunesMeta.value : null;
 
-    if (!trackInfo && !similarTracksData && !similarArtistsData && !artistInfoData) {
-      res.status(502).json({
-        error: "Não foi possível obter a análise musical do Last.fm.",
-      });
-      return;
-    }
-
     let tags: TagItem[] = asArray(trackInfo?.toptags?.tag).map((tag: any) => ({
       name: String(tag.name ?? ""),
       url: String(tag.url ?? ""),
@@ -358,7 +349,6 @@ app.get("/api/analysis", async (req, res) => {
       source: "track.getSimilar",
     }));
 
-    // Enriquece com iTunes (preview + genre + artwork), com limite de concorrência.
     const enriched: SimilarTrack[] = await mapWithLimit(
       directSimilarTracksBase,
       3,
@@ -452,7 +442,6 @@ app.get("/api/analysis", async (req, res) => {
 });
 
 // ============ /api/recommendations ============
-// Mantém comportamento antigo (sem page) e adiciona paginação + exclude.
 app.get("/api/recommendations", async (req, res) => {
   const track =
     typeof req.query.track === "string" ? req.query.track.trim() : "";
@@ -480,7 +469,6 @@ app.get("/api/recommendations", async (req, res) => {
     return;
   }
 
-  // 10 por página. Ampliamos o limit do Last.fm conforme a página.
   const PAGE_SIZE = 10;
   const upstreamLimit = Math.min(100, page * PAGE_SIZE + PAGE_SIZE);
 
@@ -505,10 +493,7 @@ app.get("/api/recommendations", async (req, res) => {
         match: Number(item.match ?? 0),
       }));
     } catch (error) {
-      console.warn(
-        "A busca por faixas semelhantes falhou:",
-        error instanceof Error ? error.message : error
-      );
+      console.warn("A busca por faixas semelhantes falhou:", error);
     }
 
     if (recommendations.length === 0 && page === 1) {
@@ -560,14 +545,10 @@ app.get("/api/recommendations", async (req, res) => {
             return true;
           });
       } catch (error) {
-        console.warn(
-          "A busca por artistas semelhantes falhou:",
-          error instanceof Error ? error.message : error
-        );
+        console.warn("A busca por artistas semelhantes falhou:", error);
       }
     }
 
-    // Chave de deduplicação consistente entre páginas.
     const seedKey = `${normalize(track)}-${normalize(artist)}`;
     const seenThisPage = new Set<string>();
 
@@ -580,12 +561,10 @@ app.get("/api/recommendations", async (req, res) => {
       return true;
     });
 
-    // Fatia a página: skip = (page-1)*10
     const start = (page - 1) * PAGE_SIZE;
     const pageItems = filtered.slice(start, start + PAGE_SIZE);
     const hasMore = filtered.length > start + PAGE_SIZE;
 
-    // Enriquece com iTunes (artwork + preview + appleUrl), limite 3.
     const enrichedRecommendations = await mapWithLimit(
       pageItems,
       3,
@@ -623,9 +602,6 @@ app.get("/api/recommendations", async (req, res) => {
 });
 
 // ============ /api/graph ============
-// Teia de conexões: centro + artistas similares (anel 1) + artistas
-// co-ocorrentes em track.getSimilar e getTopTracks (anel 2).
-// Layout calculado aqui (círculos concêntricos). Frontend só renderiza.
 app.get("/api/graph", async (req, res) => {
   const track =
     typeof req.query.track === "string" ? req.query.track.trim() : "";
@@ -664,10 +640,7 @@ app.get("/api/graph", async (req, res) => {
   };
 
   try {
-    // 1. Artista central
     const centerId = `artist:${normalize(artist)}`;
-
-    // 2. Similares do artista (anel 1)
     let ring1: { name: string; match: number; image?: string; url?: string }[] = [];
     try {
       const data = await lastFmRequest(apiKey, "artist.getSimilar", {
@@ -689,7 +662,6 @@ app.get("/api/graph", async (req, res) => {
       console.warn("graph: artist.getSimilar falhou", error);
     }
 
-    // 3. Artistas co-ocorrentes via track.getSimilar (se houver track)
     let coArtists: { name: string; match: number }[] = [];
     if (track) {
       try {
@@ -715,7 +687,6 @@ app.get("/api/graph", async (req, res) => {
       }
     }
 
-    // 4. Arestas entre ring1 (chamadas paralelas controladas)
     const ring1Names = ring1.map((r) => r.name);
     const pairEdges: GraphEdge[] = [];
     const edgeChecks = await mapWithLimit(ring1Names, 3, async (name) => {
@@ -739,7 +710,6 @@ app.get("/api/graph", async (req, res) => {
       if (!check) continue;
       for (const rel of check.related) {
         if (ring1Names.includes(rel.name)) {
-          // Evita duplicar A→B e B→A
           const idA = `artist:${normalize(check.from)}`;
           const idB = `artist:${normalize(rel.name)}`;
           if (idA < idB) {
@@ -754,11 +724,7 @@ app.get("/api/graph", async (req, res) => {
       }
     }
 
-    // 5. Deduplica coArtists e monta nós
-    coArtists = dedupeByKey(
-      coArtists,
-      (c) => normalize(c.name)
-    ).slice(0, 6);
+    coArtists = dedupeByKey(coArtists, (c) => normalize(c.name)).slice(0, 6);
 
     const nodes: GraphNode[] = [
       {
@@ -777,7 +743,6 @@ app.get("/api/graph", async (req, res) => {
     const cx = W / 2;
     const cy = H / 2;
 
-    // Anel 1
     const R1 = 170;
     ring1.forEach((r, i) => {
       const angle = (i / Math.max(1, ring1.length)) * Math.PI * 2 - Math.PI / 2;
@@ -794,7 +759,6 @@ app.get("/api/graph", async (req, res) => {
       });
     });
 
-    // Anel 2
     const R2 = 280;
     coArtists.forEach((r, i) => {
       const angle =
@@ -810,7 +774,6 @@ app.get("/api/graph", async (req, res) => {
       });
     });
 
-    // 6. Arestas do centro para todos + pairEdges
     const edges: GraphEdge[] = [];
     for (const n of nodes) {
       if (n.id === centerId) continue;
@@ -845,6 +808,13 @@ app.get("/api/graph", async (req, res) => {
   }
 });
 
+// ============ SERVIR O FRONTEND EM PRODUÇÃO (RENDER) ============
+app.use(express.static(path.resolve(process.cwd(), "dist")));
+
+app.get("*", (_req, res) => {
+  res.sendFile(path.resolve(process.cwd(), "dist", "index.html"));
+});
+
 app.listen(PORT, () => {
-  console.log(`Meluvia API rodando em http://localhost:${PORT}`);
+  console.log(`Meluvia API rodando na porta ${PORT}`);
 });
