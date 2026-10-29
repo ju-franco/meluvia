@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "tsx server.ts",
+    "server": "tsx server.ts"
   },
   "dependencies": {
     "dotenv": "^18.0.9",
@@ -25,14 +27,5 @@
     "tsx": "^4.23.15",
     "typescript": "~7.0.2",
     "vite": "^8.3.5"
-  },
-  
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "tsx server.ts"
   }
-
 }
