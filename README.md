@@ -1,6 +1,6 @@
 # 💿 `Meluvia: Radar de Descobertas Musicais`
 
-<img src="src/assets/logo.png" alt="Logo Meluvia" width="180px"/>
+<img src="src/assets/logo1.png" alt="Logo Meluvia" width="180px"/>
 
 > Este projeto foi desenvolvido para fins de estudo, prática de desenvolvimento web e composição de portfólio. O objetivo principal foi explorar a integração de APIs REST externas, manipular dados assíncronos e criar interfaces interativas de alta performance, aplicando conceitos modernos de desenvolvimento frontend e backend em um ecossistema focado na descoberta musical e exploração visual de conexões entre artistas e faixas.
 
@@ -29,7 +29,7 @@ O *Meluvia* foi projetado para oferecer controle e transparência sobre como dif
 
 | Tela Raio-X da Faixa | Tela Mapa de Conexões |
 | :---: | :---: |
-| <img src="src/assets/telas/meluvia-raiox.JPG" alt="Tela Raio-X da Faixa" width="500"/> | <img src="src/assets/telas/meluvia-mapa" alt="Tela Mapa de Conexões" width="500"/> |
+| <img src="src/assets/telas/meluvia-raiox.JPG" alt="Tela Raio-X da Faixa" width="500"/> | <img src="src/assets/telas/meluvia-mapa.JPG" alt="Tela Mapa de Conexões" width="500"/> |
 
 | Tela Listen & Match | Telas de Favoritos |
 | :---: | :---: |
