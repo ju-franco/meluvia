@@ -5,7 +5,6 @@ import {
   getFavorites,
   getRejectedKeys,
   trackKey,
-  type FavoriteTrack,
 } from "./storage";
 import vinylTexture from "./assets/vinyl.png";
 
