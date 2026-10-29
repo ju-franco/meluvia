@@ -809,12 +809,17 @@ app.get("/api/graph", async (req, res) => {
 });
 
 // ============ SERVIR O FRONTEND EM PRODUÇÃO (RENDER) ============
-app.use(express.static(path.resolve(process.cwd(), "dist")));
+const distPath = path.resolve(process.cwd(), "dist");
 
-app.get("*", (_req, res) => {
-  res.sendFile(path.resolve(process.cwd(), "dist", "index.html"));
+app.use(express.static(distPath));
+
+app.get("*", (req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    return next();
+  }
+  res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`Meluvia API rodando na porta ${PORT}`);
 });
