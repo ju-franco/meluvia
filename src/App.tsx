@@ -9,6 +9,18 @@ import CompatibilityRadar from "./CompatibilityRadar";
 import ConnectionWeb from "./ConnectionWeb";
 import ListenMatch from "./ListenMatch";
 import {
+  IconArrowUpRight,
+  IconClose,
+  IconDots,
+  IconHeart,
+  IconMusic,
+  IconNetwork,
+  IconPlus,
+  IconSearch,
+  IconSparkle,
+  IconTarget,
+} from "./Icons";
+import {
   addFavorite,
   getFavorites,
   getRejectedKeys,
@@ -376,7 +388,8 @@ function App() {
             onClick={() => setFavoritesOpen((v) => !v)}
             aria-label="Abrir favoritos"
           >
-            ♥ {favoritesList.length}
+            <IconHeart filled />
+            <span>{favoritesList.length}</span>
           </button>
           <span className="header-label">SEU RADAR MUSICAL</span>
         </div>
@@ -391,11 +404,11 @@ function App() {
               onClick={() => setFavoritesOpen(false)}
               aria-label="Fechar"
             >
-              ×
+              <IconClose />
             </button>
           </div>
           {favoritesList.length === 0 ? (
-            <p className="status">Nada guardado ainda. Descubra e clique em ♥.</p>
+            <p className="status">Nada guardado ainda. Descubra e clique em <IconHeart />.</p>
           ) : (
             <ul className="favorites-list">
               {favoritesList.map((f) => (
@@ -403,7 +416,9 @@ function App() {
                   {f.image ? (
                     <img src={f.image} alt="" className="favorite-cover" />
                   ) : (
-                    <span className="favorite-cover favorite-placeholder">♫</span>
+                    <span className="favorite-cover favorite-placeholder">
+                      <IconMusic size={20} />
+                    </span>
                   )}
                   <div className="favorite-info">
                     <strong>{f.title}</strong>
@@ -418,7 +433,7 @@ function App() {
                     }}
                     aria-label="Remover favorito"
                   >
-                    ×
+                    <IconClose />
                   </button>
                 </li>
               ))}
@@ -449,7 +464,9 @@ function App() {
           Descubra artistas, explore afinidades e encontre sons que ainda não entraram no seu radar.        
         </p>
         <form className="search-form" onSubmit={handleSearch}>
-          <span className="search-icon">⌕</span>
+          <span className="search-icon">
+            <IconSearch />
+          </span>
           <input
             type="text"
             value={query}
@@ -467,7 +484,13 @@ function App() {
             autoComplete="off"
           />
           <button type="submit" disabled={loading || !query.trim()}>
-            {loading ? "Buscando..." : "Buscar ↗"}
+            {loading ? (
+              "Buscando..."
+            ) : (
+              <>
+                Buscar <IconArrowUpRight size={18} />
+              </>
+            )}
           </button>
 
           {suggestionsOpen && query.trim().length >= 2 && (
@@ -488,13 +511,17 @@ function App() {
                       {track.artwork ? (
                         <img className="suggestion-cover" src={track.artwork} alt="" />
                       ) : (
-                        <span className="suggestion-cover suggestion-placeholder">♫</span>
+                        <span className="suggestion-cover suggestion-placeholder">
+                          <IconMusic size={20} />
+                        </span>
                       )}
                       <span className="suggestion-info">
                         <span className="suggestion-title">{track.title}</span>
                         <span className="suggestion-artist">{track.artist}</span>
                       </span>
-                      <span className="suggestion-plus">+</span>
+                      <span className="suggestion-plus">
+                        <IconPlus size={18} />
+                      </span>
                     </button>
                   ))}
                 </>
@@ -526,7 +553,7 @@ function App() {
                 />
               ) : (
                 <div className="selected-cover-vinyl selected-cover-placeholder">
-                  ♫
+                  <IconMusic size={48} />
                 </div>
               )}
             </div>
@@ -552,7 +579,9 @@ function App() {
                     aria-pressed={activePanel === "connections"}
                     disabled={loadingRecommendations}
                   >
-                    <span className="feature-btn-icon" aria-hidden="true">✦</span>
+                    <span className="feature-btn-icon" aria-hidden="true">
+                      <IconSparkle />
+                    </span>
                     {loadingRecommendations ? "Buscando..." : "Encontrar conexões"}
                   </button>
                   <button
@@ -572,7 +601,9 @@ function App() {
                     }}
                     aria-pressed={activePanel === "analysis"}
                   >
-                    <span className="feature-btn-icon" aria-hidden="true">◉</span>
+                    <span className="feature-btn-icon" aria-hidden="true">
+                      <IconTarget />
+                    </span>
                     Raio-X da faixa
                   </button>
                   <button
@@ -589,7 +620,9 @@ function App() {
                     }}
                     aria-pressed={activePanel === "map"}
                   >
-                    <span className="feature-btn-icon" aria-hidden="true">✳</span>
+                    <span className="feature-btn-icon" aria-hidden="true">
+                      <IconNetwork />
+                    </span>
                     Mapa de conexões
                   </button>
                   <button
@@ -598,7 +631,9 @@ function App() {
                     onClick={() => togglePanel("listenmatch")}
                     aria-pressed={activePanel === "listenmatch"}
                   >
-                    <span className="feature-btn-icon" aria-hidden="true">♫</span>
+                    <span className="feature-btn-icon" aria-hidden="true">
+                      <IconMusic />
+                    </span>
                     Listen & Match
                   </button>
                 </div>
@@ -650,7 +685,7 @@ function App() {
                     onClick={() => closeAllPanels()}
                     aria-label="Fechar análise"
                   >
-                    ×
+                    <IconClose />
                   </button>
                 </div>
 
@@ -787,7 +822,9 @@ function App() {
                               type="button"
                               onClick={() => openWeb(artist.name)}
                             >
-                              <span className="connection-node-icon">✳</span>
+                              <span className="connection-node-icon">
+                                <IconNetwork />
+                              </span>
                               <span>{artist.name}</span>
                               <small>
                                 {Math.round(artist.match * 100)}% de relação — clique para abrir no mapa
@@ -817,7 +854,7 @@ function App() {
                     onClick={() => closeAllPanels()}
                     aria-label="Fechar conexões"
                   >
-                    ×
+                    <IconClose />
                   </button>
                 </div>
 
@@ -839,7 +876,9 @@ function App() {
                             {recommendation.image ? (
                               <img className="recommendation-cover" src={recommendation.image} alt="" />
                             ) : (
-                              <div className="recommendation-cover recommendation-placeholder">♫</div>
+                              <div className="recommendation-cover recommendation-placeholder">
+                                <IconMusic />
+                              </div>
                             )}
                             <div className="recommendation-info">
                               <h3>{recommendation.title}</h3>
@@ -854,7 +893,7 @@ function App() {
                               onClick={() => handleFavoriteRecommendation(recommendation)}
                               aria-label={fav ? "Remover dos favoritos" : "Guardar"}
                             >
-                              {fav ? "♥" : "♡"}
+                              <IconHeart filled={fav} />
                             </button>
                             <a
                               className="track-link"
@@ -862,7 +901,7 @@ function App() {
                               target="_blank"
                               rel="noreferrer"
                             >
-                              ↗
+                              <IconArrowUpRight />
                             </a>
                           </article>
                         );
@@ -918,7 +957,9 @@ function App() {
                     {track.artwork ? (
                       <img className="track-cover-modern" src={track.artwork} alt="" />
                     ) : (
-                      <div className="track-cover-modern track-symbol">♫</div>
+                      <div className="track-cover-modern track-symbol">
+                        <IconMusic />
+                      </div>
                     )}
                   </div>
 
@@ -938,10 +979,10 @@ function App() {
                       target="_blank"
                       rel="noreferrer"
                     >
-                      ↗
+                      <IconArrowUpRight />
                     </a>
                     <button className="track-menu-btn" aria-label="Opções">
-                      •••
+                      <IconDots />
                     </button>
                   </div>
                 </article>

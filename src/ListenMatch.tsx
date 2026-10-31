@@ -7,6 +7,14 @@ import {
   trackKey,
 } from "./storage";
 import vinylTexture from "./assets/vinyl.png";
+import {
+  IconArrowLeft,
+  IconArrowUpRight,
+  IconClose,
+  IconHeart,
+  IconMusic,
+  IconReplay,
+} from "./Icons";
 
 type Candidate = {
   key: string;
@@ -199,7 +207,7 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
           </div>
           <div className="lm-summary-actions">
             <button className="btn-primary" type="button" onClick={loadDeck}>
-              Nova sessão ↻
+              Nova sessão <IconReplay />
             </button>
             <button className="btn-ghost" type="button" onClick={onClose}>
               Voltar ao site
@@ -219,7 +227,7 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
             <h2>Escute. Guarde. Descarte.</h2>
           </div>
           <button className="radar-details-close" onClick={onClose} aria-label="Fechar">
-            ×
+            <IconClose />
           </button>
         </div>
 
@@ -270,7 +278,9 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
                 {current.image ? (
                   <img className="lm-cover" src={current.image} alt="" />
                 ) : (
-                  <div className="lm-cover lm-cover-placeholder">♫</div>
+                  <div className="lm-cover lm-cover-placeholder">
+                    <IconMusic size={48} />
+                  </div>
                 )}
               </div>
 
@@ -297,7 +307,7 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
                     <p>Prévia indisponível nesta fonte.</p>
                     {current.appleUrl && (
                       <a href={current.appleUrl} target="_blank" rel="noreferrer">
-                        Ouvir no iTunes ↗
+                        Ouvir no iTunes <IconArrowUpRight size={14} />
                       </a>
                     )}
                   </div>
@@ -313,10 +323,10 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
                 disabled={index === 0}
                 title="Voltar para a música anterior"
               >
-                ← Voltar
+                <IconArrowLeft /> Voltar
               </button>
               <button className="lm-btn lm-btn-reject" type="button" onClick={reject}>
-                ✕ Descartar
+                <IconClose /> Descartar
               </button>
               <button
                 className="lm-btn lm-btn-replay"
@@ -324,10 +334,10 @@ export default function ListenMatch({ seed, onClose, onFavoritesChanged }: Props
                 onClick={replay}
                 disabled={!current.previewUrl}
               >
-                ↻ Ouvir de novo
+                <IconReplay /> Ouvir de novo
               </button>
               <button className="lm-btn lm-btn-fav" type="button" onClick={favorite}>
-                ♥ Favoritar
+                <IconHeart filled /> Favoritar
               </button>
             </div>
             <p className="lm-hint">
